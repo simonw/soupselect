@@ -16,7 +16,7 @@ from BeautifulSoup import BeautifulSoup as Soup
 
 import re
 
-tag_re = re.compile('^[a-z]+$')
+tag_re = re.compile('^[a-z0-9]+$')
 
 attribselect_re = re.compile(
     r'^(?P<tag>\w+)?\[(?P<attribute>\w+)(?P<operator>[=~\|\^\$\*]?)' + 

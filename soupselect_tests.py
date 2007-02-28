@@ -48,7 +48,13 @@ class TestBasicSelectors(unittest.TestCase):
     
     def test_invalid_tag(self):
         self.assertEqual(len(select(self.soup, 'tag%t')), 0)
-    
+
+    def test_header_tags(self):
+        self.assertSelectMultiple(
+            ('h1', ['header1']),
+            ('h2', ['header2', 'header3']),
+        )
+
     def test_class_one(self):
         for selector in ('.onep', 'p.onep', 'html p.onep'):
             els = select(self.soup, selector)
@@ -138,7 +144,7 @@ class TestBasicSelectors(unittest.TestCase):
             ('[href$=".css"]', ['l1']),
             ('link[href$=".css"]', ['l1']),
             ('link[id$="1"]', ['l1']),
-            ('[id$="1"]', ['l1', 'p1']),
+            ('[id$="1"]', ['l1', 'p1', 'header1']),
             ('div[id$="1"]', []),
             ('[id$="noending"]', []),
         )
@@ -161,7 +167,7 @@ class TestBasicSelectors(unittest.TestCase):
             ('[href*=".css"]', ['l1']),
             ('link[href*=".css"]', ['l1']),
             ('link[id*="1"]', ['l1']),
-            ('[id*="1"]', ['l1', 'p1']),
+            ('[id*="1"]', ['l1', 'p1', 'header1']),
             ('div[id*="1"]', []),
             ('[id*="noending"]', []),
             # New for this test
@@ -203,10 +209,13 @@ HTML = """
 
 <div id="main">
     <div id="inner">
+        <h1 id="header1">An H1</h1>
         <p>Some text</p>
         <p class="onep" id="p1">Some more text</p>
+        <h2 id="header2">An H2</h2>
         <p class="class1 class2 class3" id="pmulti">Another</p>
         <a href="http://bob.example.org/" rel="friend met" id="bob">Bob</a>
+        <h2 id="header3">Another H2</h2>
         <a id="me" href="http://simonwillison.net/" rel="me">me</a>
     </div>
     <p lang="en" id="lang-en">English</p>
