@@ -1,9 +1,10 @@
 import unittest
 from BeautifulSoup import BeautifulSoup
 
-from soupselect import select
+from soupselect import select, monkeypatch, unmonkeypatch
 
-class TestBasicSelectors(unittest.TestCase):
+class BaseTest(unittest.TestCase):
+    
     def setUp(self):
         self.soup = BeautifulSoup(HTML)
     
@@ -22,6 +23,8 @@ class TestBasicSelectors(unittest.TestCase):
     def assertSelectMultiple(self, *tests):
         for selector, expected_ids in tests:
             self.assertSelect(selector, expected_ids)
+
+class TestBasicSelectors(BaseTest):
     
     def test_one_tag_one(self):
         els = select(self.soup, 'title')
@@ -90,6 +93,8 @@ class TestBasicSelectors(unittest.TestCase):
         for selector in ('.class1', 'p.class1', '.class2', 'p.class2',
             '.class3', 'p.class3', 'html p.class2', 'div#inner .class2'):
             self.assertSelects(selector, ['pmulti'])
+
+class TestAttributeSelectors(BaseTest):
 
     def test_attribute_equals(self):
         self.assertSelectMultiple(
@@ -196,6 +201,54 @@ class TestBasicSelectors(unittest.TestCase):
             ('[blah]', []),
             ('p[blah]', []),
         )
+
+class TestMonkeyPatch(BaseTest):
+    
+    def assertSelectMultipleExplicit(self, soup, *tests):
+        for selector, expected_ids in tests:
+            el_ids = [el['id'] for el in soup.findSelect(selector)]
+            el_ids.sort()
+            expected_ids.sort()
+            self.assertEqual(expected_ids, el_ids,
+                "Selector %s, expected [%s], got [%s]" % (
+                    selector, ', '.join(expected_ids), ', '.join(el_ids)
+                )
+            )
+    
+    def test_monkeypatch_explicit(self):
+        soup = BeautifulSoup(HTML)
+        self.assertRaises(TypeError, soup.findSelect, '*')
+        
+        monkeypatch(BeautifulSoup)
+        
+        self.assert_(soup.findSelect('*'))
+        self.assertSelectMultipleExplicit(soup,
+            ('link', ['l1']),
+            ('div#main', ['main']),
+            ('div div', ['inner']),
+        )
+        
+        unmonkeypatch(BeautifulSoup)
+        
+        self.assertRaises(TypeError, soup.findSelect, '*')
+
+    def test_monkeypatch_implicit(self):
+        soup = BeautifulSoup(HTML)
+        self.assertRaises(TypeError, soup.findSelect, '*')
+
+        monkeypatch()
+
+        self.assert_(soup.findSelect('*'))
+        self.assertSelectMultipleExplicit(soup,
+            ('link', ['l1']),
+            ('div#main', ['main']),
+            ('div div', ['inner']),
+        )
+        
+        unmonkeypatch()
+        
+        self.assertRaises(TypeError, soup.findSelect, '*')
+
 
 HTML = """
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"

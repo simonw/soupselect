@@ -12,8 +12,6 @@ select(soup, 'div#main ul a')
 
 """
 
-from BeautifulSoup import BeautifulSoup as Soup
-
 import re
 
 tag_re = re.compile('^[a-z0-9]+$')
@@ -53,6 +51,10 @@ def attribute_checker(operator, attribute, value=''):
 
 
 def select(soup, selector):
+    """
+    soup should be a BeautifulSoup instance; selector is a CSS selector 
+    specifying the elements you want to retrieve.
+    """
     tokens = selector.split()
     current_context = [soup]
     for token in tokens:
@@ -107,3 +109,17 @@ def select(soup, selector):
             found.extend(context.findAll(token))
         current_context = found
     return current_context
+
+def monkeypatch(BeautifulSoupClass=None):
+    """
+    If you don't explicitly state the class to patch, defaults to the most 
+    common import location for BeautifulSoup.
+    """
+    if not BeautifulSoupClass:
+        from BeautifulSoup import BeautifulSoup as BeautifulSoupClass
+    BeautifulSoupClass.findSelect = select
+
+def unmonkeypatch(BeautifulSoupClass=None):
+    if not BeautifulSoupClass:
+        from BeautifulSoup import BeautifulSoup as BeautifulSoupClass
+    delattr(BeautifulSoupClass, 'findSelect')
