@@ -94,6 +94,11 @@ class TestBasicSelectors(BaseTest):
             '.class3', 'p.class3', 'html p.class2', 'div#inner .class2'):
             self.assertSelects(selector, ['pmulti'])
 
+    def test_multi_class_selection(self):
+        for selector in ('.class1.class3', '.class3.class2',
+                         '.class1.class2.class3'):
+            self.assertSelects(selector, ['pmulti'])
+
 class TestAttributeSelectors(BaseTest):
 
     def test_attribute_equals(self):

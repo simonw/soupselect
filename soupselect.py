@@ -85,11 +85,13 @@ def select(soup, selector):
             tag, klass = token.split('.', 1)
             if not tag:
                 tag = True
+            classes = set(klass.split('.'))
             found = []
             for context in current_context:
                 found.extend(
                     context.findAll(tag,
-                        {'class': lambda attr: attr and klass in attr.split()}
+                        {'class': lambda attr:
+                             attr and classes.issubset(attr.split())}
                     )
                 )
             current_context = found
